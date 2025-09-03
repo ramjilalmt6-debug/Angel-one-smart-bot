@@ -1,0 +1,131 @@
+[2025-09-03 03:30:38] === instruments update start ===
+[2025-09-03 03:30:38] Starting instruments update via SmartAPI
+[2025-09-03 03:30:38] ERROR: No module named 'smartapi'
+[WARN] instruments update failed: No module named 'smartapi'
+[2025-09-03 03:36:21] === instruments update start ===
+[2025-09-03 03:36:21] Starting instruments update via SmartAPI
+[2025-09-03 03:36:21] ERROR: No module named 'smartapi'
+[WARN] instruments update failed: No module named 'smartapi'
+[2025-09-03 03:37:22] === instruments update start ===
+[2025-09-03 03:37:22] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+[2025-09-03 03:37:22] Starting instruments update via SmartAPI
+[2025-09-03 03:37:22] ERROR: No module named 'smartapi'
+[WARN] instruments update failed: No module named 'smartapi'
+[2025-09-03 03:41:14] === instruments update start ===
+[2025-09-03 03:41:14] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/scripts/update_instruments.py", line 8, in <module>
+    from smartapi import SmartConnect   # common in 1.5.x
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'smartapi'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/scripts/update_instruments.py", line 11, in <module>
+    from SmartApi import SmartConnect  # some builds expose this name
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/venv/lib/python3.12/site-packages/SmartApi/__init__.py", line 3, in <module>
+    from SmartApi.smartConnect import SmartConnect
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/venv/lib/python3.12/site-packages/SmartApi/smartConnect.py", line 10, in <module>
+    import logzero
+ModuleNotFoundError: No module named 'logzero'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/scripts/update_instruments.py", line 13, in <module>
+    raise ModuleNotFoundError("Neither 'smartapi' nor 'SmartApi' module found in current Python environment") from e
+ModuleNotFoundError: Neither 'smartapi' nor 'SmartApi' module found in current Python environment
+[2025-09-03 03:42:17] === instruments update start ===
+[2025-09-03 03:42:17] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/scripts/update_instruments.py", line 8, in <module>
+    from smartapi import SmartConnect   # common in 1.5.x
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'smartapi'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/scripts/update_instruments.py", line 11, in <module>
+    from SmartApi import SmartConnect  # some builds expose this name
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/venv/lib/python3.12/site-packages/SmartApi/__init__.py", line 5, in <module>
+    from SmartApi.smartApiWebsocket import SmartWebSocket
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/venv/lib/python3.12/site-packages/SmartApi/smartApiWebsocket.py", line 8, in <module>
+    import websocket
+ModuleNotFoundError: No module named 'websocket'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/scripts/update_instruments.py", line 13, in <module>
+    raise ModuleNotFoundError("Neither 'smartapi' nor 'SmartApi' module found in current Python environment") from e
+ModuleNotFoundError: Neither 'smartapi' nor 'SmartApi' module found in current Python environment
+[2025-09-03 03:44:24] === instruments update start ===
+[2025-09-03 03:44:24] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/scripts/update_instruments.py", line 9, in <module>
+    from smartapi import SmartConnect
+ModuleNotFoundError: No module named 'smartapi'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/scripts/update_instruments.py", line 13, in <module>
+    from SmartApi.smartConnect import SmartConnect  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/venv/lib/python3.12/site-packages/SmartApi/__init__.py", line 5, in <module>
+    from SmartApi.smartApiWebsocket import SmartWebSocket
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/venv/lib/python3.12/site-packages/SmartApi/smartApiWebsocket.py", line 8, in <module>
+    import websocket
+ModuleNotFoundError: No module named 'websocket'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/angel-one-smart-bot/scripts/update_instruments.py", line 15, in <module>
+    raise ModuleNotFoundError("Neither 'smartapi' nor 'SmartApi.smartConnect' available in this venv") from e
+ModuleNotFoundError: Neither 'smartapi' nor 'SmartApi.smartConnect' available in this venv
+[2025-09-03 08:54:57] Starting instruments update via SmartAPI
+[2025-09-03 08:54:58] ERROR: 'SmartConnect' object has no attribute 'getInstruments'
+[2025-09-03 08:54:58] === instruments update start ===
+[2025-09-03 08:54:58] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+[2025-09-03 08:54:59] Starting instruments update via SmartAPI
+[I 250903 08:54:59 smartConnect:124] in pool
+[E 250903 08:55:00 smartConnect:246] Error occurred while making a POST request to https://apiconnect.angelone.in/rest/auth/angelbroking/user/v1/loginByPassword. Error: Invalid totp. URL: https://apiconnect.angelone.in/rest/auth/angelbroking/user/v1/loginByPassword, Headers: {'Content-type': 'application/json', 'X-ClientLocalIP': '127.0.0.1', 'X-ClientPublicIP': '106.193.147.98', 'X-MACAddress': '75:aa:e5:74:85:bd', 'Accept': 'application/json', 'X-PrivateKey': 'your_api_key_here', 'X-UserType': 'USER', 'X-SourceID': 'WEB'}, Request: {'clientcode': 'AB1234', 'password': 'your_password_here', 'totp': 'BASE32_TOTP_KEY_HERE'}, Response: {'status': False, 'message': 'Invalid totp', 'errorcode': 'AB1050', 'data': None}
+[2025-09-03 08:55:00] ERROR: 'SmartConnect' object has no attribute 'getInstruments'
+[WARN] instruments update failed: 'SmartConnect' object has no attribute 'getInstruments'
+[2025-09-03 08:56:58] === instruments update start ===
+[2025-09-03 08:56:58] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+[2025-09-03 08:56:58] Starting instruments update via public Scrip Master
+[2025-09-03 08:57:01] Fetched source: https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json, type=<class 'list'>
+[2025-09-03 08:57:01] Fetched 119475 raw rows
+[2025-09-03 08:57:02] Wrote /data/data/com.termux/files/home/angel-one-smart-bot/data/instruments.csv
+[OK] instruments.csv updated
+[2025-09-03 08:57:02] done.
+[2025-09-03 09:00:25] === instruments update start ===
+[2025-09-03 09:00:25] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+[2025-09-03 09:00:25] Starting instruments update via public Scrip Master
+[2025-09-03 09:00:28] Fetched source: https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json, type=<class 'list'>
+[2025-09-03 09:00:28] Fetched 119475 raw rows
+[2025-09-03 09:00:29] Wrote /data/data/com.termux/files/home/angel-one-smart-bot/data/instruments.csv
+[OK] instruments.csv updated
+[2025-09-03 09:00:29] done.
+[2025-09-03 09:02:31] === instruments update start ===
+[2025-09-03 09:02:31] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+[2025-09-03 09:02:31] Starting instruments update via public Scrip Master
+[2025-09-03 09:02:35] Fetched source: https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json, type=<class 'list'>
+[2025-09-03 09:02:35] Fetched 119475 raw rows
+[2025-09-03 09:02:36] Wrote /data/data/com.termux/files/home/angel-one-smart-bot/data/instruments.csv
+[OK] instruments.csv updated
+[2025-09-03 09:02:36] done.
+[2025-09-03 09:10:01] === instruments update start ===
+[2025-09-03 09:10:01] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+[2025-09-03 09:10:01] Starting instruments update via public Scrip Master
+[2025-09-03 09:10:04] Fetched source: https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json, type=<class 'list'>
+[2025-09-03 09:10:04] Fetched 119475 raw rows
+[2025-09-03 09:10:05] Wrote /data/data/com.termux/files/home/angel-one-smart-bot/data/instruments.csv
+[OK] instruments.csv updated
+[2025-09-03 09:10:05] done.

@@ -1,0 +1,3 @@
+#!/data/data/com.termux/files/usr/bin/bash
+ROOT="$HOME/angel-one-smart-bot"
+exec "$ROOT/venv/bin/python" "$ROOT/scripts/auto_token_resolver.py" "$@"

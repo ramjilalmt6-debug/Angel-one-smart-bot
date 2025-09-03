@@ -1,0 +1,8 @@
+.env
+data/*.out
+data/*.json
+data/crontab.backup
+__pycache__/
+*.pyc
+.cache/
+venv/

@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import os, sys, time, json, traceback
+from pathlib import Path
+
+# --- .env load ---
+try:
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path=Path.home()/ "angel-one-smart-bot"/ ".env")
+except Exception:
+    pass
+
+# --- Telegram notify ---
+try:
+    from scripts.notify import send
+except Exception:
+    def send(*a, **k): return False
+
+# --- SmartAPI login (Angel One) ---
+def smart_login():
+    try:
+        # tolerant import for Angel One SDK
+try:
+    from smartapi import SmartConnect          # smartapi-python
+except ModuleNotFoundError:
+    from SmartApi import SmartConnect          # alt module name
+        import pyotp
+        cid   = os.getenv("CLIENT_CODE")
+        akey  = os.getenv("API_KEY")
+        asec  = os.getenv("API_SECRET")
+        mpin  = os.getenv("MPIN")
+        tsec  = os.getenv("TOTP_SECRET")
+        if not all([cid, akey, asec, mpin, tsec]):
+            raise RuntimeError("Missing SmartAPI creds in .env")
+
+        otp = pyotp.TOTP(tsec).now()
+        obj = SmartConnect(api_key=akey)
+        resp = obj.generateSession(cid, mpin, otp)
+        if not resp or str(resp.get("status")).lower() not in ("ok", "true", "success"):
+            raise RuntimeError(f"Login failed: {resp}")
+        return obj, cid
+    except Exception as e:
+        raise
+
+# --- Strategy adapter ---
+def call_strategy_tick(api=None, live=False):
+    """
+    Tries to call strategies/pcr_momentum_oi.py tick function with flexible signatures:
+      - tick(api, live=bool)
+      - tick(live=bool)
+      - tick()
+    If not available, it no-ops.
+    """
+    try:
+        from strategies import pcr_momentum_oi as strat
+    except Exception:
+        return
+    for fn_name in ("tick", "run", "main"):
+        fn = getattr(strat, fn_name, None)
+        if callable(fn):
+            try:
+                # try most informative signatures first
+                try:
+                    fn(api, live=live); return
+                except TypeError:
+                    try:
+                        fn(live=live); return
+                    except TypeError:
+                        try:
+                            fn(api); return
+                        except TypeError:
+                            fn(); return
+            except Exception as e:
+                # Bubble up to outer handler
+                raise
+    # nothing usable
+    return
+
+def within_market_ist():
+    # Market window guard (Mon–Fri, 09:15–15:25 IST). Guardian keeps process alive outside too.
+    from datetime import datetime, time as dtime
+    try:
+        from zoneinfo import ZoneInfo
+        now = datetime.now(ZoneInfo("Asia/Kolkata"))
+    except Exception:
+        now = datetime.utcnow()  # fallback to UTC if zoneinfo missing
+        # roughly approximate IST 03:45–09:40 UTC (not exact daylight rules)
+    dow = now.isoweekday()  # 1=Mon .. 7=Sun
+    if dow > 5:  # Sat/Sun
+        return False
+    start = dtime(9, 15)
+    end   = dtime(15, 25)
+    return start <= now.time() <= end
+
+def main():
+    ROOT = Path.home()/ "angel-one-smart-bot"
+    (ROOT/"data").mkdir(parents=True, exist_ok=True)
+
+    LIVE = os.getenv("LIVE","0") == "1"
+    DRY  = os.getenv("DRY","1") == "1"
+    mode = "LIVE" if LIVE and not DRY else "DRY"
+
+    try:
+        send(f"Autopilot started ✅ (mode: {mode})")
+    except Exception:
+        pass
+
+    api = None
+    client_id = None
+    last_login_ts = 0.0
+    login_retry_backoff = 5  # seconds (will grow to max 120)
+
+    while True:
+        try:
+            # keep login fresh (re-login every ~45 minutes or if missing)
+            now = time.time()
+            if api is None or (now - last_login_ts) > 45*60:
+                api = None
+                try:
+                    api, client_id = smart_login()
+                    last_login_ts = time.time()
+                    login_retry_backoff = 5
+                    print(json.dumps({"event":"login_ok","ts":last_login_ts}), flush=True)
+                    try: send("SmartAPI login OK ✅")
+                    except Exception: pass
+                except Exception as e:
+                    msg = f"SmartAPI login FAIL ❌: {type(e).__name__}: {e}"
+                    print(json.dumps({"event":"login_fail","err":str(e)}), flush=True)
+                    try: send(msg)
+                    except Exception: pass
+                    time.sleep(min(login_retry_backoff, 120))
+                    login_retry_backoff = min(login_retry_backoff*2, 120)
+                    continue  # try again
+
+            # Market guard: run strategy ticks only during market
+            if within_market_ist():
+                try:
+                    call_strategy_tick(api=api, live=(LIVE and not DRY))
+                except Exception as e:
+                    # Strategy error: report and continue loop
+                    tb = traceback.format_exc()[-2000:]
+                    print(json.dumps({"event":"strategy_error","err":str(e)}), flush=True)
+                    try: send(f"Strategy error ❌ {type(e).__name__}: {e}\n{tb}")
+                    except Exception: pass
+                    time.sleep(2)
+            else:
+                # outside market hours, be light
+                time.sleep(10)
+
+            time.sleep(1.0)  # main tick cadence
+        except KeyboardInterrupt:
+            print(json.dumps({"event":"shutdown"}), flush=True)
+            break
+        except Exception as e:
+            tb = traceback.format_exc()[-2000:]
+            try: send(f"Autopilot crash/restart: {type(e).__name__}: {e}\n{tb}")
+            except Exception: pass
+            print(json.dumps({"event":"crash","err":str(e)}), flush=True)
+            time.sleep(3)  # avoid tight crash loop and let guardian relaunch if needed
+
+if __name__ == "__main__":
+    sys.exit(main())

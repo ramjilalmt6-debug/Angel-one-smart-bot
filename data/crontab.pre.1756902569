@@ -1,0 +1,29 @@
+# Kill-switch: हर 1 min
+
+# Auto-switch guard: हर 1 min
+
+# State snapshot → Telegram: हर 30 min
+# === Angel One Smart Bot ===
+*/2 * * * *  HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/guardian.sh'
+@reboot HOME=$HOME bash -lc 'sleep 30; [ -f $HOME/angel-one-smart-bot/venv/bin/activate ] && . $HOME/angel-one-smart-bot/venv/bin/activate; nohup python3 -u $HOME/angel-one-smart-bot/scripts/autopilot.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1 &'
+# === Smart Bot: Auto LIVE/DRY (IST) ===
+14 9 * * 1-5  HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/mode_toggle.sh LIVE 1; $HOME/angel-one-smart-bot/scripts/mode_toggle.sh DRY 0; $HOME/angel-one-smart-bot/scripts/guardian.sh'
+31 15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/mode_toggle.sh LIVE 0; $HOME/angel-one-smart-bot/scripts/mode_toggle.sh DRY 1; $HOME/angel-one-smart-bot/scripts/guardian.sh'
+# === Smart Bot: Daily Diagnostic to Telegram ===
+55 8 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/diag_push.py'
+# === Smart Bot: Risk Guard (PnL based) ===
+*/3 9-15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/risk_guard.py'
+# === Smart Bot: Backups & Log Rotation ===
+0 18 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/backup.sh'
+0 *  * * *   HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/log_rotate.sh'
+# === Smart Bot: Positions -> pnl.json (IST market hours) ===
+*/3 9-15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/venv/bin/python -u $HOME/angel-one-smart-bot/scripts/positions_to_pnl.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1'
+# === Smart Bot: State -> Telegram (IST market hours) ===
+*/30 9-15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/state_push.py'
+# === Smart Bot: 15:25 safety square-off ===
+25 15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/square_off_all.sh'
+# === Smart Bot: Health Sentinel ===
+# === Smart Bot: Health Sentinel (light) ===
+# === Smart Bot: Health Sentinel (market hours) ===
+*/5 9-16 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/health_sentinel.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1'
+*/5 9-15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/trend_autoswitch.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1'
