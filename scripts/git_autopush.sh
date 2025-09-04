@@ -3,38 +3,32 @@ set -euo pipefail
 
 ROOT="$HOME/angel-one-smart-bot"
 LOG="$ROOT/data/git_autopush.log"
-mkdir -p "$ROOT/data"
 
+mkdir -p "$ROOT" "$ROOT/data"
 cd "$ROOT"
 
-# Make sure remote has the correct (capitalized) repo URL
-if ! git remote -v | grep -q 'ramjilalmt6-debug/Angel-one-smart-bot\.git'; then
-  git remote set-url origin git@github.com:ramjilalmt6-debug/Angel-one-smart-bot.git || true
+# pull safely (don’t break on local changes)
+git pull --rebase --autostash || true
+
+# stage & commit only if there are changes (working tree or index)
+if ! git diff --quiet --exit-code || ! git diff --cached --quiet --exit-code; then
+  git add -A
+  git commit -m "auto: snapshot @ $(date '+%F %T')" || true
 fi
 
-# Ensure identity exists for commits (only sets if missing)
-[ -n "$(git config user.name || true)" ]  || git config user.name  "angel-one-bot"
-[ -n "$(git config user.email || true)" ] || git config user.email "bot@local"
-
-# Don’t fail if there’s nothing to pull
-git fetch origin >/dev/null 2>&1 || true
-git rebase origin/main || git rebase --abort || true
-
-# Stage only tracked/untracked non-ignored files
-git add -A
-
-# Commit only if there are changes
-if ! git diff --cached --quiet; then
-  TS="$(date '+%Y-%m-%d %H:%M:%S')"
-  git commit -m "auto: daily snapshot @ ${TS}"
-else
-  echo "$(date '+%F %T') No changes to commit" >> "$LOG"
-  exit 0
-fi
-
-# Push (SSH)
+# push with notification on failure
 if git push origin main; then
   echo "$(date '+%F %T') Pushed successfully" >> "$LOG"
 else
   echo "$(date '+%F %T') Push failed" >> "$LOG"
+  # send a Telegram alert using notify.send(...)
+  python3 - <<'PY' >/dev/null 2>&1 || true
+from pathlib import Path
+import importlib.util
+ROOT = Path.home() / "angel-one-smart-bot"
+spec = importlib.util.spec_from_file_location("notify", str(ROOT/"scripts"/"notify.py"))
+mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+mod.send("⚠️ Git autopush failed on device")
+PY
+  exit 1
 fi
