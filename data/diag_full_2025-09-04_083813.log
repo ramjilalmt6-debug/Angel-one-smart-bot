@@ -1,0 +1,106 @@
+ANGEL ONE SMART BOT — FULL DIAG 2025-09-04 08:38:13 IST
+Device: Linux localhost 6.1.84-android14-11-ga7853f858977-ab12946686 #1 SMP PREEMPT Tue Jan 21 13:40:26 UTC 2025 aarch64 Android
+User  : u0_a570  | Shell: /data/data/com.termux/files/usr/bin/bash
+Dir   : /data/data/com.termux/files/home/angel-one-smart-bot
+[1/10] Python & venv
+python3: Python 3.12.11
+venv   : present (Python 3.12.11)
+[2/10] Git
+branch: main
+branch: main
+remote: origin	git@github.com:ramjilalmt6-debug/Angel-one-smart-bot.git (fetch)
+remote: origin	git@github.com:ramjilalmt6-debug/Angel-one-smart-bot.git (fetch)
+dirty? : changes pending
+dirty? : changes pending
+HEAD  : 8264a57
+HEAD  : 8264a57
+[3/10] .env keys (masked)
+API_KEY=aGCimN1Z
+CLIENT_CODE=R52237982
+MPIN=8808
+TOTP_SECRET=FH2***ZLE
+STRATEGY=pcr_momentum_oi
+TREND_INTERVAL=FIVE_MINUTE
+TREND_LOOKBACK_MIN=180
+TREND_ADX_TREND=20
+TREND_ADX_RANGE=18
+TELEGRAM_BOT_TOKEN=830***D_k
+TELEGRAM_CHAT_ID=136***092
+TREND_SWITCH_COOLDOWN_MIN=15
+TREND_SWITCH_MAX_PER_DAY=3
+TREND_EXCHANGE=NSE
+TREND_SYMBOLTOKEN=99926009
+TREND_COOLDOWN_MIN=15
+LIVE_START_HHMM=0915
+LIVE_STOP_HHMM=1525
+TREND_SWITCH_ENABLE=1
+TREND_VOTES=2
+TREND_MIN_CANDLES=20
+ALERT_COOLDOWN_SEC=60
+ALERT_STARTUP_PING=0
+ALERT_COOLDOWN_SEC=60
+ALERT_STARTUP_PING=0
+ALERT_START_FROM_EOF=1
+ALERT_MAX_SEND_PER_RUN=5
+All required keys present ✅
+[4/10] Network preflight
+{"event":"net_preflight_ok","ms":880,"detail":"ok"}
+[5/10] Telegram notify bridge
+notify.py present. (Set DIAG_PING=1 to send a test.)
+[6/10] Cron entries (grep)
+# Kill-switch: हर 1 min
+
+# Auto-switch guard: हर 1 min
+
+# State snapshot → Telegram: हर 30 min
+# === Angel One Smart Bot ===
+#*/2 * * * *  HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/guardian.sh'
+@reboot HOME=$HOME bash -lc 'sleep 30; [ -f $HOME/angel-one-smart-bot/venv/bin/activate ] && . $HOME/angel-one-smart-bot/venv/bin/activate; nohup python3 -u $HOME/angel-one-smart-bot/scripts/autopilot.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1 &'
+# === Smart Bot: Auto LIVE/DRY (IST) ===
+#14 9 * * 1-5  HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/mode_toggle.sh LIVE 1; $HOME/angel-one-smart-bot/scripts/mode_toggle.sh DRY 0; $HOME/angel-one-smart-bot/scripts/guardian.sh'
+#31 15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/mode_toggle.sh LIVE 0; $HOME/angel-one-smart-bot/scripts/mode_toggle.sh DRY 1; $HOME/angel-one-smart-bot/scripts/guardian.sh'
+# === Smart Bot: Daily Diagnostic to Telegram ===
+55 8 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/diag_push.py'
+# === Smart Bot: Risk Guard (PnL based) ===
+*/3 9-15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/risk_guard.py'
+# === Smart Bot: Backups & Log Rotation ===
+0 18 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/backup.sh'
+0 *  * * *   HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/log_rotate.sh'
+# === Smart Bot: Positions -> pnl.json (IST market hours) ===
+*/3 9-15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/venv/bin/python -u $HOME/angel-one-smart-bot/scripts/positions_to_pnl.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1'
+# === Smart Bot: State -> Telegram (IST market hours) ===
+*/30 9-15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/state_push.py'
+# === Smart Bot: 15:25 safety square-off ===
+25 15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/square_off_all.sh'
+# === Smart Bot: Health Sentinel ===
+# === Smart Bot: Health Sentinel (light) ===
+# === Smart Bot: Health Sentinel (market hours) ===
+*/5 9-16 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/health_sentinel.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1'
+*/5 9-15 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/trend_autoswitch.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1'
+*/30 * * * * HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/git_autopush.sh'
+*/1 9-16 * * 1-5 HOME=$HOME bash -lc '$HOME/angel-one-smart-bot/scripts/alert_watch.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1'
+5 9 * * 1-5 HOME=$HOME bash -lc "$HOME/angel-one-smart-bot/scripts/daily_alive_ping.py >> $HOME/angel-one-smart-bot/data/autopilot.out 2>&1"
+-- must-have checks --
+✓ guardian.sh
+✓ trend_autoswitch.py
+✓ health_sentinel.py
+✓ alert_watch.py
+✓ daily_alive_ping.py
+✓ git_autopush.sh
+[7/10] Processes
+25961 /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/p
+[8/10] Trend check
+{"adx": 2.23, "status": "Range", "strategy": "pcr_momentum_oi", "candles_used": 36, "meta": {"exchange": "NSE", "from": "2025-09-03 12:30", "to": "2025-09-03 15:30", "interval": "FIVE_MINUTE"}}
+{"event": "trend_switch_nop", "strategy": "pcr_momentum_oi", "adx": 2.23, "status": "Range"}
+[9/10] SmartAPI token check
+smartapi_token_check failed
+[10/10] Logs snapshot
+autopilot.out size: 326 bytes
+--- last 40 lines ---
+{"event":"login_fail","err":"quick-test"}
+{"event":"login_fail","err":"quick-test"}
+{"event":"trend_switched","from":"A","to":"B","adx":25,"status":"Trending"}
+{"event":"login_fail","err":"quick-test v2"}
+{"event":"login_fail","err":"quick-test v2"}
+{"event":"trend_switched","from":"P","to":"Q","adx":28,"status":"Trending"}
+Report saved → /data/data/com.termux/files/home/angel-one-smart-bot/data/diag_full_2025-09-04_083813.log

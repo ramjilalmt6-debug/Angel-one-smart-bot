@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+import os, json, time
+from pathlib import Path
+
+ROOT = Path.home()/ "angel-one-smart-bot"
+DATA = ROOT/ "data"
+LOG  = DATA/ "autopilot.out"
+OFF  = DATA/ "alert.offset"
+STATE= DATA/ "alert.state.json"   # stores cooldown timestamps & startup flag
+
+# Load .env (with fallback manual parse)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(ROOT/".env", override=True)
+except Exception:
+    envp = ROOT/".env"
+    if envp.exists():
+        for ln in envp.read_text().splitlines():
+            if "=" in ln and not ln.strip().startswith("#"):
+                k, v = ln.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip())
+
+def send(msg: str) -> bool:
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("notify", str(ROOT/"scripts"/"notify.py"))
+        mod = importlib.util.module_from_spec(spec)  # type: ignore
+        spec.loader.exec_module(mod)                 # type: ignore
+        return bool(mod.send(msg))
+    except Exception:
+        return False
+
+# === Config ===
+WATCH_EVENTS = {"login_fail","trend_switched","health_sentinel_alert","risk_guard_trip","guardian_crash"}
+COOLDOWN_SEC = int(os.getenv("ALERT_COOLDOWN_SEC", "120"))   # default 2 minutes
+STARTUP_PING = os.getenv("ALERT_STARTUP_PING", "1") in ("1","true","TRUE","yes","YES")
+
+def load_json(p: Path, default):
+    try:
+        return json.loads(p.read_text())
+    except Exception:
+        return default
+
+def save_json(p: Path, obj):
+    try:
+        p.write_text(json.dumps(obj))
+    except Exception:
+        pass
+
+def load_offset() -> int:
+    try:
+        return int(OFF.read_text().strip())
+    except Exception:
+        return 0
+
+def save_offset(n: int):
+    try:
+        OFF.write_text(str(n))
+    except Exception:
+        pass
+
+def main() -> int:
+    DATA.mkdir(parents=True, exist_ok=True)
+
+    # state file (startup ping / cooldown tracker)
+    state = load_json(STATE, {"startup_sent": False, "last": {}})
+
+    # startup ping once
+    if STARTUP_PING and not state.get("startup_sent"):
+        send("🚀 Alert Watch active")
+        state["startup_sent"] = True
+        save_json(STATE, state)
+
+    if not LOG.exists():
+        print(json.dumps({"event":"alert_watch_note","msg":"log_missing"}))
+        return 0
+
+    # rotation-safe offset
+    offset = load_offset()
+    sz = LOG.stat().st_size
+    if offset > sz:
+        offset = 0
+
+    with LOG.open("rb") as f:
+        f.seek(offset)
+        new_data = f.read()
+        new_off = f.tell()
+
+    now = time.time()
+    sent = 0
+    last = state.get("last", {})
+
+    for raw in new_data.splitlines():
+        try:
+            line = raw.decode("utf-8", "replace").strip()
+            if not line or not line.startswith("{"):
+                continue
+            J = json.loads(line)
+            ev = str(J.get("event") or "")
+        except Exception:
+            continue
+
+        if ev not in WATCH_EVENTS:
+            continue
+
+        # cooldown check per event kind (coarse but effective)
+        t_prev = float(last.get(ev, 0))
+        if now - t_prev < COOLDOWN_SEC:
+            continue
+
+        # craft message
+        if ev == "login_fail":
+            msg = f"⚠️ Login FAIL: {J.get('err','')[:180]}"
+        elif ev == "trend_switched":
+            msg = f"🔀 Switched {J.get('from')} → {J.get('to')} (ADX {J.get('adx')}, {J.get('status')})"
+        elif ev == "health_sentinel_alert":
+            msg = "🚑 Health issue: " + ", ".join(J.get("issues", []))[:300]
+        elif ev == "risk_guard_trip":
+            msg = "🛑 Risk Guard tripped. Positions square-off attempted."
+        else:
+            msg = f"ℹ️ {ev}"
+
+        if send(msg):
+            sent += 1
+            last[ev] = now  # set cooldown timestamp
+
+    state["last"] = last
+    save_json(STATE, state)
+    save_offset(new_off)
+
+    print(json.dumps({"event":"alert_watch_ok","processed_bytes":len(new_data),"sent":sent,"cooldown_sec":COOLDOWN_SEC}))
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())
