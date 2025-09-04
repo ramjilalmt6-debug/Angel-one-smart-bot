@@ -129,3 +129,11 @@ ModuleNotFoundError: Neither 'smartapi' nor 'SmartApi.smartConnect' available in
 [2025-09-03 09:10:05] Wrote /data/data/com.termux/files/home/angel-one-smart-bot/data/instruments.csv
 [OK] instruments.csv updated
 [2025-09-03 09:10:05] done.
+[2025-09-04 06:09:26] === instruments update start ===
+[2025-09-04 06:09:26] Using interpreter: /data/data/com.termux/files/home/angel-one-smart-bot/venv/bin/python
+[2025-09-04 06:09:26] Starting instruments update via public Scrip Master
+[2025-09-04 06:09:29] Fetched source: https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json, type=<class 'list'>
+[2025-09-04 06:09:29] Fetched 119475 raw rows
+[2025-09-04 06:09:30] Wrote /data/data/com.termux/files/home/angel-one-smart-bot/data/instruments.csv
+[OK] instruments.csv updated
+[2025-09-04 06:09:30] done.
